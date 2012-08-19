@@ -72,6 +72,30 @@ Paragraph 2 with a link_
         rendered = t.render(Context({'markdown_content':markdown_content})).strip()
         self.assertFalse('@' in rendered)
 
+    @unittest.skipUnless(markdown and markdown_version >= (2,1), 'markdown >= 2.1 not installed')
+    def test_markdown_safe_remove(self):
+        t = Template("{% load markup %}{{ markdown_content|markdown:'safe=remove,' }}")
+        markdown_content = "<code>Some stuff</code>"
+        rendered = t.render(Context({'markdown_content':markdown_content})).strip()
+        self.assertFalse('<code>' in rendered)
+        self.assertFalse('[HTML_REMOVED]' in rendered)
+
+    @unittest.skipUnless(markdown and markdown_version >= (2,1), 'markdown >= 2.1 not installed')
+    def test_markdown_safe_replace(self):
+        t = Template("{% load markup %}{{ markdown_content|markdown:'safe=replace,' }}")
+        markdown_content = "<code>Some stuff</code>"
+        rendered = t.render(Context({'markdown_content':markdown_content})).strip()
+        self.assertFalse('<code>' in rendered)
+        self.assertTrue('[HTML_REMOVED]' in rendered)
+
+    @unittest.skipUnless(markdown and markdown_version >= (2,1), 'markdown >= 2.1 not installed')
+    def test_markdown_safe_escape(self):
+        t = Template("{% load markup %}{{ markdown_content|markdown:'safe=escape,' }}")
+        markdown_content = "<code>Some stuff</code>"
+        rendered = t.render(Context({'markdown_content':markdown_content})).strip()
+        self.assertFalse('<code>' in rendered)
+        self.assertTrue('&lt;code&gt;' in rendered)
+
     @unittest.skipIf(markdown, 'markdown is installed')
     def test_no_markdown(self):
         t = Template("{% load markup %}{{ markdown_content|markdown }}")
